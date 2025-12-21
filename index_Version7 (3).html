@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>野獣先輩 ジョーク（画像をページいっぱいに表示）</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+      background: linear-gradient(180deg,#f8fafc,#ffffff);
+      color: #0f172a;
+    }
+
+    .card {
+      width: 360px;
+      border-radius: 12px;
+      padding: 18px;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .title { font-weight: 800; font-size: 16px; margin-bottom: 6px; }
+    .question { font-size: 14px; margin-bottom: 14px; color:#334155; }
+    .buttons { display:flex; gap:10px; justify-content:center; }
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    button.yes { background: linear-gradient(180deg,#06b6d4,#0891b2); color: white; }
+    button.no { background: #f1f5f9; color: #0f172a; border: 1px solid rgba(15,23,42,0.06); }
+    .disabled { opacity: 0.7; pointer-events: none; filter: grayscale(0.05); }
+
+    .notice {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #b91c1c;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="dialog" aria-label="アンケート">
+    <div class="title">アンケート</div>
+    <div class="question">野獣先輩が好きですか？</div>
+    <div class="buttons">
+      <button id="noBtn" class="no">いいえ</button>
+      <button id="yesBtn" class="yes">はい</button>
+    </div>
+    <div id="notice" class="notice"></div>
+  </div>
+
+  <script>
+    (function () {
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      const notice = document.getElementById('notice');
+
+      const TAB_COUNT = 50; // 50個生成
+      let opened = false;
+
+      // 指定の base64 JPEG（ユーザ提供の文字列をそのまま埋めています）
+      const IMG_DATA = "data:image/jpeg;base64,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";
+
+      function newWindowContent(index) {
+        // 新しいウィンドウ内の HTML。画像をページいっぱいに表示（全画面モード要求はしない）します。
+        return `<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>複製タブ ${index + 1}</title>
+<style>
+  html,body{height:100%;margin:0;background:black}
+  .img {
+    width:100vw;
+    height:100vh;
+    object-fit:cover;
+    display:block;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+</style>
+</head>
+<body>
+  <img class="img" src="${IMG_DATA}" alt="複製画像 ${index + 1}">
+</body>
+</html>`;
+      }
+
+      function openImageTabs() {
+        if (opened) return;
+        opened = true;
+
+        [yesBtn, noBtn].forEach(b => { b.disabled = true; b.classList.add('disabled'); });
+
+        // 要求するウィンドウの特徴（ブラウザはタブで開く場合やサイズ無視する場合があります）
+        const features = 'noopener,noreferrer,width=420,height=300,toolbar=no,location=no,menubar=no,status=no,resizable=yes,scrollbars=yes';
+        let blockedCount = 0;
+
+        for (let i = 0; i < TAB_COUNT; i++) {
+          const w = window.open('', '_blank', features);
+          if (!w) {
+            blockedCount++;
+            continue;
+          }
+
+          try {
+            w.document.write(newWindowContent(i));
+            w.document.close();
+            try { w.resizeTo(420, 300); } catch(e) {}
+            try { w.focus(); } catch(e) {}
+          } catch (e) {
+            try { w.close(); } catch (e2) {}
+            blockedCount++;
+          }
+        }
+
+        if (blockedCount > 0) {
+          notice.style.display = 'block';
+          notice.textContent = `ポップアップが ${blockedCount} 個ブロックされました。ブラウザのポップアップ許可を有効にすると全て開きます。`;
+        }
+      }
+
+      yesBtn.addEventListener('click', openImageTabs);
+      noBtn.addEventListener('click', openImageTabs);
+    })();
+  </script>
+</body>
+</html>
